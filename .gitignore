@@ -12,3 +12,4 @@ ios/
 build/
 
 .flutter-plugins
+*.iml
