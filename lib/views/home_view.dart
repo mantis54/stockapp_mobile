@@ -55,124 +55,111 @@ class HomeState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Your Portfolio'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.person),
-            onPressed: () {},
-          )
-        ],
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-          children: <Widget>[
-            StreamBuilder(
-              stream: Firestore.instance.collection(user.uid).snapshots,
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                
-                // Checks if the snapshot is null
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+    Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Column(
+        children: <Widget>[
+          StreamBuilder(
+            stream: Firestore.instance.collection(user.uid).snapshots,
+            builder:
+                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              // Checks if the snapshot is null
+              if (!snapshot.hasData) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
 
-                // Checks if the snapshot has no data (new user)
-                if (snapshot.data.documents.isEmpty) {
-                  Map<String, dynamic> data = {
-                    'positions': {},
-                    'startingCash': 25000,
-                    'currentCash': 25000,
-                    'looseCash': 25000
-                  };
-                  Firestore.instance.runTransaction((Transaction tx) async {
-                    CollectionReference reference =
-                        Firestore.instance.collection(globals.uid);
-                    await reference.add(data);
-                  });
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+              // Checks if the snapshot has no data (new user)
+              if (snapshot.data.documents.isEmpty) {
+                Map<String, dynamic> data = {
+                  'positions': {},
+                  'startingCash': 25000,
+                  'currentCash': 25000,
+                  'looseCash': 25000
+                };
+                Firestore.instance.runTransaction((Transaction tx) async {
+                  CollectionReference reference =
+                      Firestore.instance.collection(globals.uid);
+                  await reference.add(data);
+                });
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
 
-                // Initializes important variables from the snapshot
-                double currentCash =
-                    snapshot.data.documents.first.data['currentCash'] + .00;
-                double startingCash =
-                    snapshot.data.documents.first.data['startingCash'] + .00;
-                globals.looseCash =
-                    snapshot.data.documents.first.data['looseCash'] + .00;
-                globals.docId = snapshot.data.documents.first.documentID;
-                globals.data = snapshot.data.documents.first.data;
+              // Initializes important variables from the snapshot
+              double currentCash =
+                  snapshot.data.documents.first.data['currentCash'] + .00;
+              double startingCash =
+                  snapshot.data.documents.first.data['startingCash'] + .00;
+              globals.looseCash =
+                  snapshot.data.documents.first.data['looseCash'] + .00;
+              globals.docId = snapshot.data.documents.first.documentID;
+              globals.data = snapshot.data.documents.first.data;
 
-                return Flexible(
-                  child: Center(
-                    child: Container(
+              return Flexible(
+                child: Center(
+                  child: Container(
 //                        height: MediaQuery.of(context).size.height * .95,
-                      width: MediaQuery.of(context).size.width * .95,
-                      child: ListView(
-                        children: <Widget>[
-                          Card(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                      0.0, 0.0, 8.0, 0.0),
-                                  child: Text(
-                                    globals.currencyFormatter
-                                        .format(currentCash),
-                                    style: TextStyle(fontSize: 64.0),
-                                  ),
+                    width: MediaQuery.of(context).size.width * .95,
+                    child: ListView(
+                      children: <Widget>[
+                        Card(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                    0.0, 0.0, 8.0, 0.0),
+                                child: Text(
+                                  globals.currencyFormatter.format(currentCash),
+                                  style: TextStyle(fontSize: 64.0),
                                 ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: <Widget>[
-                                    Text(
-                                      ((currentCash - startingCash) /
-                                                  startingCash)
-                                              .toString() +
-                                          '%',
-                                      style: TextStyle(fontSize: 24.0),
-                                    ),
-                                    Text(
-                                      '\$${currentCash - startingCash}',
-                                      style: TextStyle(fontSize: 24.0),
-                                    )
-                                  ],
-                                )
-                              ],
-                            ),
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  Text(
+                                    ((currentCash - startingCash) /
+                                                startingCash)
+                                            .toString() +
+                                        '%',
+                                    style: TextStyle(fontSize: 24.0),
+                                  ),
+                                  Text(
+                                    '\$${currentCash - startingCash}',
+                                    style: TextStyle(fontSize: 24.0),
+                                  )
+                                ],
+                              )
+                            ],
                           ),
-                          SizedBox(
-                            height: 20.0,
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        Center(
+                          child: Text(
+                            'Your Positions',
+                            style: TextStyle(fontSize: 32.0),
                           ),
-                          Center(
-                            child: Text(
-                              'Your Positions',
-                              style: TextStyle(fontSize: 32.0),
-                            ),
+                        ),
+                        Container(
+                          child: Column(
+                            children:
+                                getPositions(snapshot.data.documents.first),
                           ),
-                          Container(
-                            child: Column(
-                              children:
-                                  getPositions(snapshot.data.documents.first),
-                            ),
-                          )
-                        ],
-                      ),
+                        )
+                      ],
                     ),
                   ),
-                );
-              },
-            )
-          ],
-        ),
+                ),
+              );
+            },
+          )
+        ],
       ),
     );
   }
