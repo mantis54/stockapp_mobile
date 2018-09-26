@@ -9,13 +9,13 @@ import 'package:stockapp/components/stock.dart';
 import 'package:stockapp/widgets/stock_widget.dart';
 import 'package:stockapp/global.dart' as globals;
 
-
-
+/// Displays the home sceen
 class HomeView extends StatefulWidget {
   @override
   HomeState createState() => new HomeState();
 }
 
+/// The state of the HomeView
 class HomeState extends State<HomeView> {
   FirebaseUser user;
   List<Widget> pos;
@@ -26,18 +26,23 @@ class HomeState extends State<HomeView> {
     user = globals.user;
   }
 
+  /// Used to remove invalid stocks from the list of stocks
   callback(invalid) {
     setState(() {
       pos.remove(invalid);
     });
   }
 
+  /// Builds a list of StockWidgets from a Document map
   List<Widget> getPositions(DocumentSnapshot doc) {
     List<Stock> stocks = new List<Stock>();
     Map<dynamic, dynamic> positions = doc.data['positions'];
 
     positions.forEach((symbol, map) {
-      Stock stock = new Stock(symbol: symbol, numShares: map['shares'], boughtPrice: map['price'] + .0);
+      Stock stock = new Stock(
+          symbol: symbol,
+          numShares: map['shares'],
+          boughtPrice: map['price'] + .0);
       stocks.add(stock);
     });
     pos = new List<Widget>();
@@ -68,12 +73,15 @@ class HomeState extends State<HomeView> {
               stream: Firestore.instance.collection(user.uid).snapshots,
               builder: (BuildContext context,
                   AsyncSnapshot<QuerySnapshot> snapshot) {
+                
+                // Checks if the snapshot is null
                 if (!snapshot.hasData) {
                   return Center(
                     child: CircularProgressIndicator(),
                   );
                 }
 
+                // Checks if the snapshot has no data (new user)
                 if (snapshot.data.documents.isEmpty) {
                   Map<String, dynamic> data = {
                     'positions': {},
@@ -91,9 +99,13 @@ class HomeState extends State<HomeView> {
                   );
                 }
 
-                double currentCash = snapshot.data.documents.first.data['currentCash'] + .00;
-                double startingCash = snapshot.data.documents.first.data['startingCash'] + .00;
-                globals.looseCash = snapshot.data.documents.first.data['looseCash'] + .00;
+                // Initializes important variables from the snapshot
+                double currentCash =
+                    snapshot.data.documents.first.data['currentCash'] + .00;
+                double startingCash =
+                    snapshot.data.documents.first.data['startingCash'] + .00;
+                globals.looseCash =
+                    snapshot.data.documents.first.data['looseCash'] + .00;
                 globals.docId = snapshot.data.documents.first.documentID;
                 globals.data = snapshot.data.documents.first.data;
 
@@ -112,15 +124,20 @@ class HomeState extends State<HomeView> {
                                   padding: const EdgeInsets.fromLTRB(
                                       0.0, 0.0, 8.0, 0.0),
                                   child: Text(
-                                    globals.currencyFormatter.format(currentCash),
+                                    globals.currencyFormatter
+                                        .format(currentCash),
                                     style: TextStyle(fontSize: 64.0),
                                   ),
                                 ),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: <Widget>[
                                     Text(
-                                      ((currentCash - startingCash) / startingCash).toString() + '%',
+                                      ((currentCash - startingCash) /
+                                                  startingCash)
+                                              .toString() +
+                                          '%',
                                       style: TextStyle(fontSize: 24.0),
                                     ),
                                     Text(

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:stockapp/global.dart' as globals;
 
+/// Widget that handles the purchasing of stocks
 class Buy extends StatefulWidget {
   double price;
   String symbol;
@@ -16,6 +17,7 @@ class Buy extends StatefulWidget {
   BuyState createState() => new BuyState();
 }
 
+/// The state of the Buy widget
 class BuyState extends State<Buy> {
   TextEditingController sharesController = new TextEditingController(text: '0');
   TextEditingController totalController =
@@ -38,6 +40,7 @@ class BuyState extends State<Buy> {
     }
   }
 
+  /// Validates the calculated cost for the order
   String _validateCost(String cost){
     double predicted = numShares * widget.price;
 

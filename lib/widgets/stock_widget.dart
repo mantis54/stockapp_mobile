@@ -77,6 +77,7 @@ class StockState extends State<StockWidget> {
     );
   }
 
+  /// Updates the stock to reflect changes in buy orders
   callBack(newShares, newCost){
     setState(() {
       stock.numShares = newShares;
