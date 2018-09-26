@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,11 +18,18 @@ class HomeView extends StatefulWidget {
 
 class HomeState extends State<HomeView> {
   FirebaseUser user;
+  List<Widget> pos;
 
   @override
   void initState() {
     super.initState();
     user = globals.user;
+  }
+
+  callback(invalid) {
+    setState(() {
+      pos.remove(invalid);
+    });
   }
 
   List<Widget> getPositions(DocumentSnapshot doc) {
@@ -31,9 +40,9 @@ class HomeState extends State<HomeView> {
       Stock stock = new Stock(symbol: symbol, numShares: map['shares'], boughtPrice: map['price'] + .0);
       stocks.add(stock);
     });
-    List<Widget> pos = new List<Widget>();
+    pos = new List<Widget>();
     stocks.forEach((Stock stock) {
-      pos.add(StockWidget(stock: stock));
+      pos.add(StockWidget(stock, callback));
     });
     return pos;
   }

@@ -9,7 +9,9 @@ class Sell extends StatefulWidget {
   double price;
   String symbol;
 
-  Sell({this.price, this.symbol})
+  Sell(this.price, this.symbol, this.callback);
+
+  Function(int, double) callback;
 
   @override
   SellState createState() => new SellState();
@@ -157,7 +159,7 @@ class SellState extends State<Sell> {
                     if(shares > 0){
                       Map<String, dynamic> map = {'price': price, 'shares': shares};
                       globals.data['positions'][widget.symbol] = map;
-                      globals.data['looseCash'] = globals.looseCash - calcCost;
+                      globals.data['looseCash'] = globals.looseCash + calcCost;
                     } else {
                       globals.data['positions'].remove(widget.symbol);
                     }
@@ -169,6 +171,7 @@ class SellState extends State<Sell> {
                       Firestore.instance.collection(globals.uid);
                       await reference.document(globals.docId).updateData(globals.data);
                     });
+                    widget.callback(shares, price);
                     Navigator.of(context).pop();
                   }
                 },

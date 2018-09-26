@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -9,7 +8,9 @@ class Buy extends StatefulWidget {
   double price;
   String symbol;
 
-  Buy({this.price, this.symbol});
+  Buy(this.price, this.symbol, this.callback);
+
+  Function(int, double) callback;
 
   @override
   BuyState createState() => new BuyState();
@@ -170,6 +171,7 @@ class BuyState extends State<Buy> {
                       Firestore.instance.collection(globals.uid);
                       await reference.document(globals.docId).updateData(globals.data);
                     });
+                    widget.callback(shares, price);
                     Navigator.of(context).pop();
                   }
                 },

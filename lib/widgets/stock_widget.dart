@@ -5,13 +5,16 @@ import 'package:http/http.dart' as http;
 
 import 'package:stockapp/components/stock.dart';
 import 'buy_widget.dart';
+import 'sell_widget.dart';
 import 'package:stockapp/global.dart' as globals;
 
 /// A widget that displays data for a stock
 class StockWidget extends StatefulWidget {
   final Stock stock;
 
-  StockWidget({this.stock});
+  StockWidget(this.stock, this.callback);
+
+  Function(StockWidget) callback;
 
   @override
   StockState createState() => new StockState();
@@ -27,14 +30,6 @@ class StockState extends State<StockWidget> {
     // TODO: implement initState
     super.initState();
     stock = widget.stock;
-    updateData();
-  }
-
-  /// Updates the state of the stock
-  void updateData() {
-    setState(() {
-      stock.updateData();
-    });
   }
 
   /// Retrieves the data for the stock from the API framework
@@ -43,7 +38,11 @@ class StockState extends State<StockWidget> {
         .get(globals.url + '/stock/${widget.stock.symbol}/batch?types=quote');
 
     if (response.statusCode == 200) {
-      return Stock.fromJson(json.decode(response.body)['quote']);
+      Map<String, dynamic> map = json.decode(response.body)['quote'];
+      stock.name = map['companyName'];
+      stock.currentPrice = map['latestPrice'];
+//      stock = Stock.fromJson(json.decode(response.body)['quote']);
+      return stock;
     } else {
       throw Exception('Failed to retrive data');
     }
@@ -57,10 +56,35 @@ class StockState extends State<StockWidget> {
           return SimpleDialog(
             title: Text('Buy ${stock.symbol.toUpperCase()}'),
             children: <Widget>[
-              Buy(price: price, symbol: widget.stock.symbol,)
+              Buy(price, widget.stock.symbol, callBack)
             ],
           );
         });
+  }
+
+  /// Displays a Dialog for selling a stock
+  Future<Null> _sellMenu(double price) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text('Sell ${stock.symbol.toUpperCase()}'),
+          children: <Widget>[
+            Sell(price, widget.stock.symbol, callBack)
+          ],
+        );
+      }
+    );
+  }
+
+  callBack(newShares, newCost){
+    setState(() {
+      stock.numShares = newShares;
+      stock.boughtPrice = newCost;
+      if(newShares <= 0){
+        widget.callback(widget);
+      }
+    });
   }
 
   /// Builds the widget
@@ -112,7 +136,9 @@ class StockState extends State<StockWidget> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
                     RaisedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _sellMenu(snapshot.data.currentPrice);
+                      },
                       child: Text('SELL'),
                     ),
                     RaisedButton(
