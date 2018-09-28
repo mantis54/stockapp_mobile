@@ -1,8 +1,3 @@
 # stockapp
 
-A new Flutter project.
-
-## Getting Started
-
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+A mobile component for a paper trading app using Dart and Flutter
